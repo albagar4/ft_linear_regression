@@ -1,28 +1,36 @@
 import sys
 import math
 
-# For now, list reads only the mileage of the car
-
-def read_column(path: str, column: int = 0) -> list[float]:
-    data_list = []
+def read_data(path: str) -> tuple[list[float], list[float]]:
+    mileage_list = []
+    price_list = []
     with open(path, "r", encoding="utf-8") as file:
-        next(file, None)
-        for index, line in enumerate(file):
+        header = next(file, None)
+        if header != "km,price" and header != "km,price\n":
+            raise ValueError("Header is not correct")
+        
+        for index, line in enumerate(file, start=2):
             line = line.strip()
             if not line:
                 continue
             try:
-                data_list.append(float(line.split(",")[0]))
+                mileage, price = line.split(",")
+                if not math.isfinite(float(mileage)) or not math.isfinite(float(mileage)):
+                    raise ValueError()
+                line = line.split(",")
+                mileage_list.append(float(mileage))
+                price_list.append(float(price))
             except (ValueError, IndexError) as error:
                 raise ValueError(f"{path}, line {index}: invalid data") from error
-        return data_list
+                
+    return mileage_list, price_list
 
-def compute_mean_std(data_list: list[float]) -> tuple[float, float]:
-    if not data_list:
+def compute_mean_std(mileages: list[float]) -> tuple[float, float]:
+    if not mileages:
         raise ValueError("cannot compute statistics of an empty list")
     
-    mean = math.fsum(data_list) / len(data_list)
-    variance = math.fsum((v - mean) ** 2 for v in data_list) / len(data_list)
+    mean = math.fsum(mileages) / len(mileages)
+    variance = math.fsum((v - mean) ** 2 for v in mileages) / len(mileages)
     return mean, math.sqrt(variance)
 
 def standardize(values: list[float], mean: float, std_dev: float) -> list[float]:
@@ -30,11 +38,12 @@ def standardize(values: list[float], mean: float, std_dev: float) -> list[float]
 
 def main() -> None:
     try:
-        mileages = read_column("data.csv", column=0)
+        mileages, prices = read_data("test.csv")
+        print(prices)
         mean, std_dev = compute_mean_std(mileages)
         standardized = standardize(mileages, mean, std_dev)
     except FileNotFoundError:
-        print("Error: data.csv not found", file=sys.stderr)
+        print("Error: file not found", file=sys.stderr)
         sys.exit(1)
     except ValueError as error:
         print(f"Error: {error}", file=sys.stderr)

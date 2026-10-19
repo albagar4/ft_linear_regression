@@ -1,4 +1,5 @@
-mileage,price
+km,price
 20000,2
 60000,10
 100000,3
+nan,inf
