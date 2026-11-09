@@ -38,8 +38,7 @@ def standardize(values: list[float], mean: float, std_dev: float) -> list[float]
 
 def main() -> None:
     try:
-        mileages, prices = read_data("test.csv")
-        print(prices)
+        mileages, prices = read_data("data.csv")
         mean, std_dev = compute_mean_std(mileages)
         standardized = standardize(mileages, mean, std_dev)
     except FileNotFoundError:
@@ -48,7 +47,7 @@ def main() -> None:
     except ValueError as error:
         print(f"Error: {error}", file=sys.stderr)
         sys.exit(1)
-    print(f"mean={mean} std_dev={std_dev}")
+    # print(f"mean={mean} std_dev={std_dev}")
 
 if __name__ == '__main__':
     main()
